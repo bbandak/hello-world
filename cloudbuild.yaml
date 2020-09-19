@@ -1,16 +1,54 @@
 steps:
-
-- id: "Build Docker Image"
-  name: gcr.io/cloud-builders/docker
-  args: ['build', '-t', 'us.gcr.io/hb-devops-case/go-helloworld', '-f', 'Dockerfile', '.']
-
-- id: "Push Docker Image"
-  name: gcr.io/cloud-builders/docker
-  args: ['push', 'us.gcr.io/hb-devops-case/go-helloworld']
-
-- id: "Trigger Deployment"
-  name: gcr.io/cloud-builders/kubectl
-  args: ['delete', 'pod', '-l', 'app=go-helloworld', '-n', 'hb-devops-case']
-  env:
-  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
-  - 'CLOUDSDK_CONTAINER_CLUSTER=standard-cluster-1'
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - '-t'
+      - '$_IMAGE_NAME:$COMMIT_SHA'
+      - .
+      - '-f'
+      - $_DOCKERFILE_NAME
+    dir: $_DOCKERFILE_DIR
+    id: Build
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_IMAGE_NAME:$COMMIT_SHA'
+    id: Push
+  - name: gcr.io/cloud-builders/gsutil
+    args:
+      - '-c'
+      - |-
+        if [ "$_OUTPUT_BUCKET_PATH" != "" ]
+        then
+          gsutil cp -r output/suggested gs://$_OUTPUT_BUCKET_PATH/config/$_K8S_APP_NAME/$BUILD_ID/suggested
+          gsutil cp -r output/expanded gs://$_OUTPUT_BUCKET_PATH/config/$_K8S_APP_NAME/$BUILD_ID/expanded
+        fi
+    id: Save configs
+    entrypoint: sh
+  - name: gcr.io/cloud-builders/gke-deploy
+    args:
+      - apply
+      - '--filename=output/expanded'
+      - '--cluster=$_GKE_CLUSTER'
+      - '--location=$_GKE_LOCATION'
+      - '--namespace=$_K8S_NAMESPACE'
+    id: Apply deploy
+images:
+  - '$_IMAGE_NAME:$COMMIT_SHA'
+options:
+  substitutionOption: ALLOW_LOOSE
+substitutions:
+  _IMAGE_NAME: gcr.io/hb-devops-case/github.com/bbandak/hello-world
+  _K8S_APP_NAME: go-helloworld
+  _DOCKERFILE_NAME: Dockerfile
+  _GKE_CLUSTER: cluster-1
+  _K8S_ANNOTATIONS: gcb-trigger-id=894a6c0c-f9eb-4edb-8b2f-a8a9b6f912db
+  _OUTPUT_BUCKET_PATH: hb-devops-case_cloudbuild/deploy
+  _DOCKERFILE_DIR: ''
+  _GKE_LOCATION: us-central1-a
+  _K8S_YAML_PATH: kubernetes/deployment.yaml
+  _K8S_NAMESPACE: hb-devops-case
+  _K8S_LABELS: ''
+tags:
+  - gcp-cloud-build-deploy
+  - $_K8S_APP_NAME
