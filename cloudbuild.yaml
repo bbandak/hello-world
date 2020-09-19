@@ -21,6 +21,6 @@ steps:
         pwd
         ls -lrt
         sed -i 's/image_name/$COMMIT_SHA/g' kubernetes/values.yaml
-        cat values.yaml
+        cat kubernetes/values.yaml
     id: pass image name to values.yaml
     entrypoint: sh
