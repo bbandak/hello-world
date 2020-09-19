@@ -20,7 +20,18 @@ steps:
       - |-
         pwd
         ls -lrt
-        sed -i 's/image_name/$COMMIT_SHA/g' kubernetes/values.yaml
-        cat kubernetes/values.yaml
-    id: pass image name to values.yaml
+        sed -i 's/image_hash/$COMMIT_SHA/g' kubernetes/values.yaml
+    id: pass image hash to values.yaml
     entrypoint: sh
+  - name: us.gcr.io/hb-devops-case/helm
+    id: Deploy chart
+    args:
+      - upgrade
+      - -i
+      - go-helloworld
+      - ./kubernetes
+      - -f
+      - ./kubernetes/values.yaml
+    env:
+      - KUBECONFIG=/workspace/.kube/config
+      - TILLERLESS=true
