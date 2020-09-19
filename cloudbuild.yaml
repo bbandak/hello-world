@@ -18,9 +18,7 @@ steps:
     args:
       - '-c'
       - |-
-        pwd
-        ls -lrt
-        sed -i 's/image_hash/$COMMIT_SHA/g' kubernetes/values.yaml
+        sed -i 's/image_tag/$COMMIT_SHA/g' kubernetes/values.yaml
     id: pass image hash to values.yaml
     entrypoint: sh
   - name: us.gcr.io/hb-devops-case/helm

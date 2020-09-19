@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  hash: image_hash
+  tag: image_tag
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []

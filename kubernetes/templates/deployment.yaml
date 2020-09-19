@@ -25,7 +25,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "gcr.io/hb-devops-case/github.com/bbandak/hello-world@sha256:{{ .Values.image.hash }}"
+          image: "gcr.io/hb-devops-case/github.com/bbandak/hello-world:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
