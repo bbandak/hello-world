@@ -14,30 +14,13 @@ steps:
       - push
       - '$_IMAGE_NAME:$COMMIT_SHA'
     id: Push
-  - name: gcr.io/cloud-builders/gke-deploy
+  - name: gcr.io/cloud-builders/gsutil
     args:
-      - apply
-      - '--filename=kubernetes/deployment.yaml'
-      - '--cluster=$_GKE_CLUSTER'
-      - '--location=$_GKE_LOCATION'
-      - '--namespace=$_K8S_NAMESPACE'
-    id: Apply deploy
-images:
-  - '$_IMAGE_NAME:$COMMIT_SHA'
-options:
-  substitutionOption: ALLOW_LOOSE
-substitutions:
-  _IMAGE_NAME: gcr.io/hb-devops-case/github.com/bbandak/hello-world
-  _K8S_APP_NAME: go-helloworld
-  _DOCKERFILE_NAME: Dockerfile
-  _GKE_CLUSTER: cluster-1
-  _K8S_ANNOTATIONS: gcb-trigger-id=894a6c0c-f9eb-4edb-8b2f-a8a9b6f912db
-  _OUTPUT_BUCKET_PATH: hb-devops-case_cloudbuild/deploy
-  _DOCKERFILE_DIR: ''
-  _GKE_LOCATION: us-central1-a
-  _K8S_YAML_PATH: kubernetes/deployment.yaml
-  _K8S_NAMESPACE: hb-devops-case
-  _K8S_LABELS: ''
-tags:
-  - gcp-cloud-build-deploy
-  - $_K8S_APP_NAME
+      - '-c'
+      - |-
+        pwd
+        ls -lrt
+        sed -i 's/image_name/$COMMIT_SHA/g' kubernetes/values.yaml
+        cat values.yaml
+    id: pass image name to values.yaml
+    entrypoint: sh

@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  name: image_name
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -31,8 +31,9 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   port: 80
+  targetport: 11130
 
 ingress:
   enabled: false
