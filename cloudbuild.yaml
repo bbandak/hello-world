@@ -1,0 +1,16 @@
+steps:
+
+- id: "Build Docker Image"
+  name: gcr.io/cloud-builders/docker
+  args: ['build', '-t', 'us.gcr.io/hb-devops-case/go-helloworld', '-f', 'Dockerfile', '.']
+
+- id: "Push Docker Image"
+  name: gcr.io/cloud-builders/docker
+  args: ['push', 'us.gcr.io/hb-devops-case/go-helloworld']
+
+- id: "Trigger Deployment"
+  name: gcr.io/cloud-builders/kubectl
+  args: ['delete', 'pod', '-l', 'app=go-helloworld', '-n', 'hb-devops-case']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=standard-cluster-1'
