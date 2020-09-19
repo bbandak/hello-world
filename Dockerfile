@@ -8,4 +8,5 @@ RUN adduser -S -D -H -h /app appuser
 USER appuser
 COPY --from=builder /build/server /app/
 WORKDIR /app
+EXPOSE 11130
 CMD ["./server"]
