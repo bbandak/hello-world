@@ -9,4 +9,4 @@ USER appuser
 COPY --from=builder /build/server /app/
 WORKDIR /app
 EXPOSE 11130
-CMD ["./server"]
+ENTRYPOINT ["./server"]
