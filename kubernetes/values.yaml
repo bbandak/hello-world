@@ -45,6 +45,7 @@ ingress:
   hosts:
     - host: hb.devops.case
       paths: []
+      
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
