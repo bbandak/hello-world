@@ -1,19 +1,17 @@
 package main
 
 import (
-
 	"net/http"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
-
 	httpRequestsTotal = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "http_requests_total",
 		Help: "Count of all HTTP requests",
 	}, []string{"code", "method"})
-
 )
 
 // create a handler struct
@@ -30,19 +28,16 @@ func (h HttpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	
+
 	r := prometheus.NewRegistry()
 	r.MustRegister(httpRequestsTotal)
 
 	// create a new handler
 	handler := HttpHandler{}
-	
+
 	// listen and serve
 	http.ListenAndServe(":11130", handler)
-	
-	counter := promhttp.InstrumentHandlerDuration(
-		promhttp.InstrumentHandlerCounter(httpRequestsTotal, handler),
-	)
-	http.Handle("/", counter)
 
+	http.Handle("/", promhttp.InstrumentHandlerCounter(httpRequestsTotal, handler))
+	http.Handle("/metrics", promhttp.HandlerFor(r, promhttp.HandlerOpts{}))
 }
