@@ -21,7 +21,7 @@ type HttpHandler struct{}
 func (h HttpHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	// create response binary data
-	data := []byte("Hello Hepsiburada from @BurakBandak") // slice of bytes
+	data := []byte("Hello") // slice of bytes
 
 	// write `data` to response
 	res.Write(data)
